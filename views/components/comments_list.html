@@ -1,0 +1,112 @@
+<style is="custom-style">
+
+    paper-fab.sentiment_badge{
+        --paper-fab-background:#e8e8e8;
+        --iron-icon-height: 14px;
+        --iron-icon-width: 14px;
+        height: 16px;
+        width: 16px;
+        position: absolute;
+        top: 8px;
+        left: 42px;
+        z-index: 1;
+    }
+
+    .sentiment_badge_neutral{
+        color: #A7B1B7;
+    }
+
+    .sentiment_badge_agree{
+        color: #60df20;
+    }
+
+    .sentiment_badge_disagree{
+        color: #FF1E1E;
+    }
+
+    .ow_comments_ipc{
+        width: 98%;
+    }
+</style>
+
+<div id="{$cmpContext}">
+    <div class="ow_comments_list">
+        {if !empty($countToLoad) && $countToLoad > 0}
+        <div class="ow_comment_list_loader ow_feed_comments_viewall ow_small">
+            <a href="javascript://">+<span>{$countToLoad}</span> {$loadMoreLabel}</a>
+        </div>
+        {/if}
+        {if isset($noComments)}
+        <div class="ow_nocontent">{text key="base+comment_no_comments"}</div>
+        {else}
+        {foreach from=$comments item='comment'}
+        <div class="ow_comments_item clearfix">
+            <div class="cnx_action" style="display: none">{$comment.cnxAction}</div>
+            <div class="ow_comments_item_picture">
+                {capture assign=csentiment}commentSentiment{$comment.commentId}{/capture}
+                {if ${$csentiment} == 1}
+                   <paper-fab mini icon="thumbs-up-down" class="sentiment_badge sentiment_badge_neutral"></paper-fab>
+                {/if}
+                {if ${$csentiment} == 2}
+                   <paper-fab mini icon="thumb-up" class="sentiment_badge sentiment_badge_agree"></paper-fab>
+                {/if}
+                {if ${$csentiment} == 3}
+                   <paper-fab mini icon="thumb-down" class="sentiment_badge sentiment_badge_disagree"></paper-fab>
+                {/if}
+                {decorator name='avatar_item' data=$comment.avatar}
+            </div>
+            <div class="ow_comments_item_info" id="comment_{$comment.commentId}">
+                <span class="{if !empty($comment.cnxAction)}ow_comments_date_hover {/if}ow_comments_date ow_nowrap ow_tiny ow_remark">{$comment.date}</span>
+                <div class="ow_comments_item_header"><a href="{$comment.profileUrl}">{$comment.displayName}</a></div>
+
+                <div class="ow_comments_content ow_smallmargin">
+                    <!--<a name="{$comment.commentId}"></a>-->
+                    {if !empty($comment.previewMaxChar)}
+                    {$comment.content|more:$comment.previewMaxChar}
+                    {else}
+                    {$comment.content}
+                    {/if}
+                </div>{$comment.content_add}
+            </div>
+
+            {capture assign=clevel}commentsLevel{$comment.commentId}{/capture}
+            {if ${$clevel} <= 2}
+            <div class="spod_public_bottom_bar" style="margin-left: 60px;">
+                <div class="spod_public_bottom_bar_control" style="padding-left: 20px; height: 27px;">
+                    <div class="ow_miniic_control" style="width: 100%;padding-top: 5px;" id="comment_bar_{$comment.commentId}">
+                        {if ${$clevel} != {$levelsLimit}}
+                        <span id="spod_public_room_nested_comment_show_{$comment.commentId}" class="ow_miniic_comment"  style="position: relative; float: left;"></span>
+                        {capture assign=ccount}commentsCount{$comment.commentId}{/capture}
+                        <span class="spod_public_bottom_bar_counter_comments" style="position: relative; float: left;vertical-align: middle;color:#999;padding-left: 5px;">{${$ccount}}</span>
+                        {/if}
+                    </div>
+                </div>
+
+                {capture assign=nested}nestedComments{$comment.commentId}{/capture}
+                {if !empty($nested)}
+                <div id="nc_{$comment.commentId}" class="nestedComment" style="display: none;">
+                    <div class="q-comments">
+                        {${$nested}}
+                    </div>
+                </div>
+                {/if}
+            </div>
+            {/if}
+
+        </div>
+        {/foreach}
+        {/if}
+    </div>
+    {if !empty($pages)}
+    <div class="ow_paging clearfix ow_stdmargin">
+        <span>{text key='base+pages_label'}</span>
+        {foreach from=$pages item='page'}
+        {if !isset($page.pageIndex)}
+        <span>{$page.label}</span>
+        {else}
+        <a href="javascript://" class="page-{$page.pageIndex}{if isset($page.active) && $page.active} active{/if}">{$page.label}</a>
+        {/if}
+        {/foreach}
+    </div>
+    {/if}
+</div>
