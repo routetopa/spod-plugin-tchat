@@ -2,8 +2,8 @@
 
     paper-fab.sentiment_badge{
         --paper-fab-background:#e8e8e8;
-        --iron-icon-height: 14px;
-        --iron-icon-width: 14px;
+        --iron-icon-height: 16px;
+        --iron-icon-width: 16px;
         height: 16px;
         width: 16px;
         position: absolute;
@@ -13,20 +13,32 @@
     }
 
     .sentiment_badge_neutral{
-        color: #A7B1B7;
+        color: #2196F3;
     }
 
     .sentiment_badge_agree{
-        color: #60df20;
+        color: #4CAF50;
     }
 
     .sentiment_badge_disagree{
-        color: #FF1E1E;
+        color: #F44336;
     }
 
     .ow_comments_ipc{
         width: 98%;
     }
+
+    paper-fab.show_datalet{
+        float: left;
+        height: 22px;
+        width: 22px;
+        margin-top: 5px;
+        background: rgb(33, 150, 243);
+        --iron-icon-height: 16px;
+        --iron-icon-width: 16px;
+    }
+
+
 </style>
 
 <div id="{$cmpContext}">
@@ -45,13 +57,13 @@
             <div class="ow_comments_item_picture">
                 {capture assign=csentiment}commentSentiment{$comment.commentId}{/capture}
                 {if ${$csentiment} == 1}
-                   <paper-fab mini icon="thumbs-up-down" class="sentiment_badge sentiment_badge_neutral"></paper-fab>
+                   <paper-fab mini icon="face" class="sentiment_badge sentiment_badge_neutral"></paper-fab>
                 {/if}
                 {if ${$csentiment} == 2}
-                   <paper-fab mini icon="thumb-up" class="sentiment_badge sentiment_badge_agree"></paper-fab>
+                   <paper-fab mini icon="social:mood" class="sentiment_badge sentiment_badge_agree"></paper-fab>
                 {/if}
                 {if ${$csentiment} == 3}
-                   <paper-fab mini icon="thumb-down" class="sentiment_badge sentiment_badge_disagree"></paper-fab>
+                   <paper-fab mini icon="social:mood-bad" class="sentiment_badge sentiment_badge_disagree"></paper-fab>
                 {/if}
                 {decorator name='avatar_item' data=$comment.avatar}
             </div>

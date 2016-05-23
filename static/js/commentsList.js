@@ -363,7 +363,6 @@ OwComments.prototype.initTextarea = function()
 
         self.$formWrapper.addClass('ow_preloader');
         self.$commentsInputCont.hide();
-
     };
 
     this.submitHandler = this.realSubmitHandler;

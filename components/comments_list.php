@@ -208,9 +208,9 @@ class SPODTCHAT_CMP_CommentsList extends BASE_CMP_CommentsList
                 if(!empty($datalet)) {
 
                     OW::getDocument()->addOnloadScript('$("#datalet_placeholder_' . $value->getId() . '_comment").css("display", "none");');
-
+                    OW::getDocument()->addOnloadScript('$("#comment_' . $value->getId() . '").append("<paper-fab mini class=\'show_datalet\' icon=\'assessment\' style=\'float:left; margin-top: 5px;\' id=\'show_datalet_comment_' . $value->getId() .'\'></paper-fab>");');
                     OW::getDocument()->addOnloadScript('
-                               $("#comment_bar_' . $value->getId() . '").append("<paper-fab mini class=\'show_datalet\' icon=\'assessment\' style=\'float:left;\' id=\'show_datalet_comment_' . $value->getId() .'\'></paper-fab>");
+                               /*$("#comment_bar_' . $value->getId() . '").append("<paper-fab mini class=\'show_datalet\' icon=\'assessment\' style=\'float:left;\' id=\'show_datalet_comment_' . $value->getId() .'\'></paper-fab>");*/
                                $("#show_datalet_comment_' . $value->getId() .'").click(function(){
                                      $("#datalet_placeholder_' . $value->getId() . '_comment").toggle(\'fade\',
                                                                                           {direction: \'top\'},
