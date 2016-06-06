@@ -7,6 +7,7 @@ error_reporting(-1);
 class SPODTCHAT_CMP_Comments extends BASE_CMP_Comments
 {
     public static $numberOfNestedLevels = 3;
+    public static $COMMENT_ENTITY_TYPE = SPODPUBLIC_BOL_Service::ENTITY_TYPE_COMMENT;
 
     public function initForm()
     {
