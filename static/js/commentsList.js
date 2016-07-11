@@ -2,6 +2,8 @@ var SpodtchatCommentsList = function( params ){
     this.$context = $('#' + params.contextId);
     $.extend(this, params, owCommentListCmps.staticData);
     this.$loader = $('.ow_comment_list_loader', this.$context);
+    //to reload component when receive a sync
+    this.$relaodComponent = $('#new_message_icon_' + params.contextId , this.$context);
 }
 
 SpodtchatCommentsList.prototype = {
@@ -13,6 +15,12 @@ SpodtchatCommentsList.prototype = {
                 self.$loader.addClass('ow_preloader');
                 $('a', self.$loader).hide();
                 self.initialCount += self.loadMoreCount;
+                self.reload();
+            }
+        );
+
+        this.$relaodComponent.live('click',
+            function(){
                 self.reload();
             }
         );
@@ -215,6 +223,11 @@ SpodtchatCommentsList.prototype = {
                 $('a', self.$loader).hide();
                 self.$context.replaceWith(data.commentList);
                 OW.addScript(data.onloadScript);
+                $("#ccount_" + data.entityId).html(data.commentCount);
+                $("#new_message_" + data.entityId).css('color', 'transparent');
+                $("#new_message_" + data.entityId).removeClass("newMessagesArrived");
+                $("#comment_container_" + data.entityId).removeClass("emphasizedComment");
+
             },
             error : function( XMLHttpRequest, textStatus, errorThrown ){
                 OW.error('Ajax Error: '+textStatus+'!');

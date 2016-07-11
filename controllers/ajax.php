@@ -84,6 +84,14 @@ class SPODTCHAT_CTRL_Ajax extends OW_ActionController
         }
         /* ODE */
 
+        $x = json_encode($params);
+
+        //emit realitme notification
+        SPODNOTIFICATION_CLASS_EventHandler::getInstance()->emitNotification(["plugin"      => "tchat",
+                                                                              "operation"   => "commentAdded",
+                                                                              "comment"     => json_encode($comment),
+                                                                              'parent'      => $params->getEntityId()]);
+
         // trigger event comment add
         $event = new OW_Event('base_add_comment', array(
             'entityType' => $params->getEntityType(),
@@ -127,8 +135,9 @@ class SPODTCHAT_CTRL_Ajax extends OW_ActionController
         $page = ( isset($_POST['page']) && (int) $_POST['page'] > 0) ? (int) $_POST['page'] : 1;
         $commentsList = new SPODTCHAT_CMP_CommentsList($params, $_POST['cid'], $page);
         exit(json_encode(array(
+            'entityId' => $params->getEntityId(),
             'onloadScript' => OW::getDocument()->getOnloadScript(),
-            'commentList' => $commentsList->render(),
+            'commentList'  => $commentsList->render(),
             'commentCount' => $this->commentService->findCommentCount($params->getEntityType(), $params->getEntityId())
         )));
     }
@@ -139,12 +148,14 @@ class SPODTCHAT_CTRL_Ajax extends OW_ActionController
 
         $page = ( isset($_POST['page']) && (int) $_POST['page'] > 0) ? (int) $_POST['page'] : 1;
         $commentsList = new SPODTCHAT_CMP_CommentsList($params, $_POST['cid'], $page);
-        return (json_encode(array(
+
+        echo (json_encode(array(
             'entityId' => $params->getEntityId(),
             'onloadScript' => OW::getDocument()->getOnloadScript(),
             'commentList' => $commentsList->render(),
             'commentCount' => $this->commentService->findCommentCount($params->getEntityType(), $params->getEntityId())
         )));
+        exit;
     }
 
     public function getMobileCommentList()

@@ -1,3 +1,4 @@
+{literal}
 <style is="custom-style">
     paper-fab.sentiment-button
     {
@@ -9,7 +10,14 @@
         width:  20px;
         left: 5px;
     }
+
 </style>
+{/literal}
+
+<!--<div id="new_message_{$commentId}" class="layout horizontal new_message_bundle">
+    <paper-icon-button id="new_message_icon" icon="icons:alarm-add" on-tap="_reloadCommentsList"></paper-icon-button>
+    <div id="numbers_of_new_messages_{$commentId}" commentId="{$commentId}" class="number_of_new_messages_bundle">0</div>
+</div>-->
 
 <div id="{$cmpContext}" class="{if $mini}ow_comments_mipc{else}ow_comments_ipc{/if}{if $bottomList} ow_comments_form_top{/if}{if empty($formCmp)} ow_comments_no_form{/if}">
     {capture name='comments'}

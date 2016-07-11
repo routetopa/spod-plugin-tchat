@@ -101,6 +101,9 @@ class SPODTCHAT_CMP_CommentsList extends BASE_CMP_CommentsList
             "window.owCommentListCmps.items['$this->id'] = new SpodtchatCommentsList($jsParams);
              window.owCommentListCmps.items['$this->id'].init();"
         );
+
+        $this->assign('components_url', SPODPR_COMPONENTS_URL);
+        $this->assign('cid', $this->params->getEntityId());
     }
 	
 	
@@ -191,9 +194,9 @@ class SPODTCHAT_CMP_CommentsList extends BASE_CMP_CommentsList
             /*Add nasted level*/
             if(!isset($this->params->level)) $this->params->level = $this->getEntityLevel($value->getId());
 
-            if($this->params->level <= SPODTCHAT_CMP_Comments::$numberOfNestedLevels) {
+            if($this->params->level <= SPODTCHAT_CMP_Comments::$NUMBER_OF_NESTED_LEVEL) {
                 //nasted comment
-                $commentsParams = new BASE_CommentsParams('spodtchat', COCREATION_BOL_Service::COMMENT_ENTITY_TYPE);
+                $commentsParams = new BASE_CommentsParams('spodtchat', SPODTCHAT_CMP_Comments::$COMMENT_ENTITY_TYPE);
                 $commentsParams->setEntityId($value->getId());
                 $commentsParams->setDisplayType(BASE_CommentsParams::DISPLAY_TYPE_WITH_LOAD_LIST_MINI);
                 $commentsParams->setCommentCountOnPage(5);
@@ -234,7 +237,7 @@ class SPODTCHAT_CMP_CommentsList extends BASE_CMP_CommentsList
                     ');
                 }
 
-                $this->addComponent('nestedComments' . $value->getId(), new SPODTCHAT_CMP_Comments($commentsParams, SPODTCHAT_CMP_Comments::$numberOfNestedLevels));
+                $this->addComponent('nestedComments' . $value->getId(), new SPODTCHAT_CMP_Comments($commentsParams, SPODTCHAT_CMP_Comments::$NUMBER_OF_NESTED_LEVEL, SPODTCHAT_CMP_Comments::$COMMENT_ENTITY_TYPE, SPODTCHAT_CMP_Comments::$COMMENT_ENTITY_ID));
 
                 OW::getDocument()->addOnloadScript(
                     "$(document).ready(function(){
@@ -253,7 +256,7 @@ class SPODTCHAT_CMP_CommentsList extends BASE_CMP_CommentsList
                 $this->assign('commentSentiment' . $value->getId(), SPODTCHAT_BOL_Service::getInstance()->getCommentSentiment($value->getId())->sentiment);
                 $this->assign('commentsCount' . $value->getId(), BOL_CommentService::getInstance()->findCommentCount(COCREATION_BOL_Service::COMMENT_ENTITY_TYPE, $value->getId()));
                 $this->assign('commentsLevel' . $value->getId(), $this->params->level);
-                $this->assign('levelsLimit', SPODTCHAT_CMP_Comments::$numberOfNestedLevels);
+                $this->assign('levelsLimit', SPODTCHAT_CMP_Comments::$NUMBER_OF_NESTED_LEVEL);
             }
 
             /*End adding nasted level*/

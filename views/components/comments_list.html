@@ -1,3 +1,9 @@
+<link rel="import" href="{$components_url}bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="{$components_url}bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="{$components_url}bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="{$components_url}bower_components/iron-icons/notification-icons.html">
+
+{literal}
 <style is="custom-style">
 
     paper-fab.sentiment_badge{
@@ -38,8 +44,43 @@
         --iron-icon-width: 16px;
     }
 
+    div.number_of_new_messages_bundle{
+        margin-top: 10px;
+    }
+    div.new_message_bundle{
+        left: 95%;
+        width: 100px;
+        position: relative;
+        top: 0px;
+        color: transparent;
+    }
 
+    @-webkit-keyframes blinker {
+        from {opacity: 1.0;}
+        to {opacity: 0.3;}
+    }
+
+    .newMessagesArrived{
+        text-decoration: blink;
+        -webkit-animation-name: blinker;
+        -webkit-animation-duration: 1.7s;
+        -webkit-animation-iteration-count:infinite;
+        -webkit-animation-timing-function:ease-in-out;
+        -webkit-animation-direction: alternate;
+    }
+
+    .emphasizedComment{
+        border-style: solid;
+        border-width: 1px;
+        border-color: #111;
+        -webkit-animation-name: blinker;
+        -webkit-animation-duration: 1.7s;
+        -webkit-animation-iteration-count:infinite;
+        -webkit-animation-timing-function:ease-in-out;
+        -webkit-animation-direction: alternate;
+    }
 </style>
+{/literal}
 
 <div id="{$cmpContext}">
     <div class="ow_comments_list">
@@ -48,11 +89,17 @@
             <a href="javascript://">+<span>{$countToLoad}</span> {$loadMoreLabel}</a>
         </div>
         {/if}
+
+        <div id="new_message_{$cid}" class="layout horizontal new_message_bundle">
+            <paper-icon-button id="new_message_icon_{$cmpContext}" class="new_message_icon" icon="icons:alarm-add" commentId="{$cid}" cid="{$cmpContext}"></paper-icon-button>
+            <div id="numbers_of_new_messages_{$cid}" class="number_of_new_messages_bundle">0</div>
+        </div>
+
         {if isset($noComments)}
         <div class="ow_nocontent">{text key="base+comment_no_comments"}</div>
         {else}
         {foreach from=$comments item='comment'}
-        <div class="ow_comments_item clearfix">
+        <div id="comment_container_{$comment.commentId}" commentId="{$comment.commentId}" class="ow_comments_item clearfix">
             <div class="cnx_action" style="display: none">{$comment.cnxAction}</div>
             <div class="ow_comments_item_picture">
                 {capture assign=csentiment}commentSentiment{$comment.commentId}{/capture}
@@ -89,7 +136,7 @@
                         {if ${$clevel} != {$levelsLimit}}
                         <span id="spod_public_room_nested_comment_show_{$comment.commentId}" class="ow_miniic_comment"  style="position: relative; float: left;"></span>
                         {capture assign=ccount}commentsCount{$comment.commentId}{/capture}
-                        <span class="spod_public_bottom_bar_counter_comments" style="position: relative; float: left;vertical-align: middle;color:#999;padding-left: 5px;">{${$ccount}}</span>
+                        <span id="ccount_{$comment.commentId}" class="spod_public_bottom_bar_counter_comments" style="position: relative; float: left;vertical-align: middle;color:#999;padding-left: 5px;">{${$ccount}}</span>
                         {/if}
                     </div>
                 </div>

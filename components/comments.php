@@ -6,8 +6,17 @@ error_reporting(-1);
 
 class SPODTCHAT_CMP_Comments extends BASE_CMP_Comments
 {
-    public static $numberOfNestedLevels = 3;
-    public static $COMMENT_ENTITY_TYPE = SPODPUBLIC_BOL_Service::ENTITY_TYPE_COMMENT;
+    public static $NUMBER_OF_NESTED_LEVEL = 3;
+    public static $COMMENT_ENTITY_TYPE  = COCREATION_BOL_Service::COMMENT_ENTITY_TYPE;//default value
+    public static $COMMENT_ENTITY_ID    = 1;//default value
+
+    public function __construct( BASE_CommentsParams $params, $nested_level, $entity_type, $entity_id)
+    {
+        $this::$NUMBER_OF_NESTED_LEVEL = $nested_level;
+        $this::$COMMENT_ENTITY_TYPE    = $entity_type;
+        $this::$COMMENT_ENTITY_ID      = $entity_id;
+        parent::__construct($params);
+    }
 
     public function initForm()
     {
@@ -35,7 +44,7 @@ class SPODTCHAT_CMP_Comments extends BASE_CMP_Comments
             $jsParams['loadMoreCount'] = $this->params->getLoadMoreCount();
             $jsParams['countOnPage'] = $this->params->getCommentCountOnPage();
             $jsParams['uid'] = $this->id;
-            $jsParams['addUrl'] = OW::getRouter()->urlFor('SPODPUBLIC_CTRL_Comments', 'addComment');
+            $jsParams['addUrl'] = OW::getRouter()->urlFor('SPODTCHAT_CTRL_Comments', 'addComment');
             $jsParams['displayType'] = $this->params->getDisplayType();
             $jsParams['textAreaId'] = $taId;
             $jsParams['attchId'] = $attchId;
@@ -79,8 +88,19 @@ class SPODTCHAT_CMP_Comments extends BASE_CMP_Comments
 
         // add comment list cmp
         $this->addComponent('commentList', new SPODTCHAT_CMP_CommentsList($this->params, $this->id));
-    }
 
+        $js = UTIL_JsGenerator::composeJsString('
+                TCHAT                             = {};
+                TCHAT.currentUserId               = {$current_user_id}
+                TCHAT.ajax_tchat_get_comment_list = {$ajax_tchat_get_comment_list}
+                TCHAT.commentParams               = {$comment_params}
+            ', array(
+            'current_user_id'             => OW::getUser()->getId(),
+            'ajax_tchat_get_comment_list' => OW::getRouter()->urlFor('SPODTCHAT_CTRL_Ajax', 'getCommentListRendered'),
+            'comment_params'              => $jsParams
+        ));
+        OW::getDocument()->addOnloadScript($js);
+    }
 }
 
 ?>
