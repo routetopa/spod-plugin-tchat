@@ -206,7 +206,7 @@ class SPODTCHAT_CMP_CommentsList extends BASE_CMP_CommentsList
                 $commentsParams->setShowEmptyList(false);
                 $commentsParams->level = $this->params->level + 1;
 
-                $datalet = ODE_BOL_Service::getInstance()->getDataletByPostIdWhereArray($value->getId(), array("comment", "public-room"));
+                $datalet = ODE_BOL_Service::getInstance()->getDataletByPostIdWhereArray($value->getId(), array("comment", "public-room", "tchat"));
 
                 if(!empty($datalet)) {
 

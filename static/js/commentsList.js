@@ -332,7 +332,7 @@ SPODTCHAT.commentSendMessage = function(message, context)
 
             /* ODE */
             // Remove ic_ok icon from comment field
-            $(ODE.commentTarget).parent().find('.ode_done').remove();
+            $("#" + $(ODE.commentTarget).attr("data-id") + '_placeholder').remove();
             ODE.commentTarget = null;
             ODE.reset();
             /* ODE */
