@@ -11,3 +11,8 @@ To install *TChat* plugin:
 
 * Clone this project by following the github instruction on *SPOD_INSTALLATION_DIR/ow_plugins*
 * Install the plugin on SPOD by *admin plugins panel*
+
+### Note
+
+*To use this plugin you must install the Notification System plugin (spod-plugin-notification-system). [Notification System plugin](https://github.com/routetopa/spod-plugin-notification-system) 
+implements the synchronous mechanism*
