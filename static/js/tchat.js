@@ -61,10 +61,6 @@ $(document).ready(function(){
         }
     });
 
-    /*$('[id^="spod_tchat_room_nested_comment_show"]').click(function(event){
-        $("#nc_").slideToggle();
-    });*/
-
     $(document.body).on('click', '.ow_miniic_comment', function(e){
         $(e.target).parent().parent().next().toggle('fade', {direction: 'top'}, 500);
         $(e.target).parent().parent().next().css('display');

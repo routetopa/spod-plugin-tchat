@@ -89,20 +89,6 @@ class SPODTCHAT_CMP_Comments extends BASE_CMP_Comments
             $this->assign('theme_image_url', OW::getThemeManager()->getInstance()->getThemeImagesUrl());
         }
 
-        //OW::getDocument()->addOnloadScript("new OwComments(" . json_encode($jsParams) . ");");
-
-        /*OW::getDocument()->addOnloadScript(" window.addEventListener('DOMNodeInserted', function() {
-                                                                         window.tchatCommentCmps.items['" . $this->params->getEntityId() ."'] =  new OwComments(" . json_encode($jsParams) . ");
-                                                                      }, false);");*/
-        /*OW::getDocument()->addOnloadScript("var observer = new MutationObserver(function(mutations) {
-                                               mutations.forEach(function(mutation) {
-                                               for (var i = 0; i < mutation.addedNodes.length; i++)
-                                                  window.tchatCommentCmps.items['" . $this->params->getEntityId() ."'] =  new OwComments(" . json_encode($jsParams) . ");
-                                             })
-                                            });
-                                            var target = document.getElementById('". $this->cmpContextId . "');
-                                            observer.observe(target, { childList: true });");*/
-
         OW::getDocument()->addOnloadScript("window.tchatCommentsParams['" . $this->params->getEntityId() ."'] =  " . json_encode($jsParams) . ";");
 
         $this->assign('displayType', $this->params->getDisplayType());
