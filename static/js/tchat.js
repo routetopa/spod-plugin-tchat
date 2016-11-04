@@ -1,22 +1,25 @@
-$(".sentiment-button").live("click", function()
-{
-    var id = $(this).attr('id');
-    switch($(this).attr('icon')){
-        case "thumbs-up-down":
-            $(this).attr('icon', 'thumb-up');
-            $(this).attr('sentiment', '2');
-            break;
-        case "thumb-up":
-            $(this).attr('icon', 'thumb-down');
-            $(this).attr('sentiment', '3');
-            break;
-        case "thumb-down":
-            $(this).attr('icon', 'thumbs-up-down');
-            $(this).attr('sentiment', '1');
-            break;
-    }
-});
+window.tchatCommentCmps = {items : {}};
+window.tchatCommentListCmps = {items : {}};
+window.tchatAttachmentCmps = {};
+window.tchatCommentsParams = {};
+window.tchatCommentsListParams = {};
+window.tchatAttachmentParams = {};
 
+window.tchatCommentCmps.refreshCommentsBehavior = function(){
+    setTimeout( function() {
+        for(var k in window.tchatCommentsParams){
+            window.tchatCommentCmps.items[k] = new OwComments(window.tchatCommentsParams[k]);
+        }
+        for(k in window.tchatCommentsListParams){
+            window.tchatCommentListCmps.items[k] = new SpodtchatCommentsList(window.tchatCommentsListParams[k]);
+            window.tchatCommentListCmps.items[k].init();
+        }
+        for(k in window.tchatAttachmentParams){
+            window.tchatAttachmentCmps[k] = new SPODFileAttachment(window.tchatAttachmentParams[k]);
+        }
+
+    }, 1000);
+};
 
 $(document).ready(function(){
 
@@ -39,11 +42,62 @@ $(document).ready(function(){
         }
     });
 
+    $(".sentiment-button").live("click", function()
+    {
+        var id = $(this).attr('id');
+        switch($(this).attr('icon')){
+            case "face":
+                $(this).attr('icon', 'social:mood');
+                $(this).attr('sentiment', '2');
+                break;
+            case "social:mood":
+                $(this).attr('icon', 'social:mood-bad');
+                $(this).attr('sentiment', '3');
+                break;
+            case "social:mood-bad":
+                $(this).attr('icon', 'face');
+                $(this).attr('sentiment', '1');
+                break;
+        }
+    });
+
+    /*$('[id^="spod_tchat_room_nested_comment_show"]').click(function(event){
+        $("#nc_").slideToggle();
+    });*/
+
+    $(document.body).on('click', '.ow_miniic_comment', function(e){
+        $(e.target).parent().parent().next().toggle('fade', {direction: 'top'}, 500);
+        $(e.target).parent().parent().next().css('display');
+    });
+
+    $(document.body).on('click', '.show_datalet', function(e){
+        //var datalet_placeholder = $(e.currentTarget).parent().find(".datalet_placeholder");
+        var datalet_placeholder = $(e.currentTarget).parent().parent().find('.datalet_placeholder');
+
+        datalet_placeholder.toggle('fade',
+            {direction: 'top'},
+            function(){
+                if(datalet_placeholder.css('display') == 'none')
+                    $(e.currentTarget).css('background', '#2196F3');
+                else
+                    $(e.currentTarget).css('background', '#5B646A');
+
+                //resize the datalet when is opened
+                var datalet = $(datalet_placeholder.children()[1])[0];
+                if(datalet.refresh != undefined)
+                    datalet.refresh();
+                else
+                    datalet.behavior.presentData();
+            },
+            500);
+    });
+
     /*$(".new_message_icon").click(function(){
         $("#new_message_" + $(this).attr('commentId')).css('color', 'transparent');
         $("#new_message_" + $(this).attr('commentId')).removeClass("newMessagesArrived");
         $("#comment_container_" + $(this).attr('commentId')).removeClass("emphasizedComment");
     });*/
+    window.tchatCommentCmps.refreshCommentsBehavior();
 });
 
 ODE.addOdeOnComment = function()
@@ -75,9 +129,8 @@ ODE.addOdeOnComment = function()
                 ODE.pluginPreview = 'tchat';
                 ODE.commentTarget = e.target;
                 $('.ow_submit_auto_click').show();
-                document.getElementById('share_from_private_room').dispatchEvent(new Event('animated-button-container-controllet_open-window'));
+                parent.document.getElementById('share_from_private_room').dispatchEvent(new Event('animated-button-container-controllet_open-window'));
             });
         }
     });
 };
-
