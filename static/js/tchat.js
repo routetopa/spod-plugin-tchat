@@ -67,7 +67,6 @@ $(document).ready(function(){
     });
 
     $(document.body).on('click', '.show_datalet', function(e){
-        //var datalet_placeholder = $(e.currentTarget).parent().find(".datalet_placeholder");
         var datalet_placeholder = $(e.currentTarget).parent().parent().find('.datalet_placeholder');
 
         datalet_placeholder.toggle('fade',
@@ -80,19 +79,16 @@ $(document).ready(function(){
 
                 //resize the datalet when is opened
                 var datalet = $(datalet_placeholder.children()[1])[0];
-                if(datalet.refresh != undefined)
-                    datalet.refresh();
-                else
-                    datalet.behavior.presentData();
+                if (datalet != undefined && datalet.behavior != undefined && datalet.nodeName != "DATATABLE-DATALET")
+                {
+                    if (datalet.refresh != undefined)
+                        datalet.refresh();
+                    else
+                        datalet.behavior.presentData();
+                }
             },
             500);
     });
-
-    /*$(".new_message_icon").click(function(){
-        $("#new_message_" + $(this).attr('commentId')).css('color', 'transparent');
-        $("#new_message_" + $(this).attr('commentId')).removeClass("newMessagesArrived");
-        $("#comment_container_" + $(this).attr('commentId')).removeClass("emphasizedComment");
-    });*/
     window.tchatCommentCmps.refreshCommentsBehavior();
 });
 
