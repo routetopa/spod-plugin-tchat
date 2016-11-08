@@ -121,8 +121,8 @@ class SPODTCHAT_CTRL_Ajax extends OW_ActionController
                 'commentList' => $commentListCmp->render(),
                 'onloadScript' => OW::getDocument()->getOnloadScript(),
                 'commentCount' => BOL_CommentService::getInstance()->findCommentCount($params->getEntityType(), $params->getEntityId())
-            )
-        )
+              )
+           )
         );
     }
 
