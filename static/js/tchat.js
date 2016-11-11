@@ -18,7 +18,7 @@ window.tchatCommentCmps.refreshCommentsBehavior = function(){
             window.tchatAttachmentCmps[k] = new SPODFileAttachment(window.tchatAttachmentParams[k]);
         }
 
-    }, 1500);
+    }, 3000);
 };
 
 $(document).ready(function(){
