@@ -7,19 +7,7 @@ window.tchatCommentsListParams = {};
 window.tchatAttachmentParams = {};
 
 window.tchatCommentCmps.refreshCommentsBehavior = function(){
-    /*setTimeout( function() {
-        for(var k in window.tchatCommentsParams){
-            window.tchatCommentCmps.items[k] = new OwComments(window.tchatCommentsParams[k]);
-        }
-        for(k in window.tchatCommentsListParams){
-            window.tchatCommentListCmps.items[k] = new SpodtchatCommentsList(window.tchatCommentsListParams[k]);
-            window.tchatCommentListCmps.items[k].init();
-        }
-        for(k in window.tchatAttachmentParams){
-            window.tchatAttachmentCmps[k] = new SPODFileAttachment(window.tchatAttachmentParams[k]);
-        }
 
-    }, 3000);*/
    $('.comment_input').livequery( function(e){
         for(var k in window.tchatCommentsParams){
             window.tchatCommentCmps.items[k] = new OwComments(window.tchatCommentsParams[k]);
