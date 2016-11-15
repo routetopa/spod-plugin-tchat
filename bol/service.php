@@ -47,4 +47,17 @@ class SPODTCHAT_BOL_Service
         SPODTCHAT_BOL_TchatCommentSentimentDao::getInstance()->save($sent);
     }
 
+    /*attahcment manage*/
+    public function onSaveAttachment( $params )
+    {
+        if ( empty($params['uid']) || empty($params['pluginKey']) )
+        {
+            return null;
+        }
+
+        BOL_AttachmentService::getInstance()->updateStatusForBundle($params['pluginKey'], $params['uid'], 1);
+        $result = BOL_AttachmentService::getInstance()->getFilesByBundleName($params['pluginKey'], $params['uid']);
+        return $result ? $result[0] : null;
+    }
+
 }

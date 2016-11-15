@@ -52,9 +52,10 @@ class SPODTCHAT_CTRL_Ajax extends OW_ActionController
             if ( !empty($_POST['attachmentInfo']) )
             {
                 $tempArr = json_decode($_POST['attachmentInfo'], true);
-                OW::getEventManager()->call('base.attachment_save_image', array('uid' => $tempArr['uid'], 'pluginKey' => $tempArr['pluginKey']));
+                //OW::getEventManager()->call('base.attachment_save_image', array('uid' => $tempArr['uid'], 'pluginKey' => $tempArr['pluginKey']));
+                SPODTCHAT_BOL_Service::getInstance()->onSaveAttachment(array('uid' => $tempArr['uid'], 'pluginKey' => $tempArr['pluginKey']));
                 $tempArr['href'] = $tempArr['url'];
-                $tempArr['type'] = 'photo';
+                //$tempArr['type'] = 'photo';
                 $attachment = json_encode($tempArr);
             }
             else if ( !empty($_POST['oembedInfo']) )
@@ -83,9 +84,6 @@ class SPODTCHAT_CTRL_Ajax extends OW_ActionController
                 $_REQUEST['datalet']['data']);
         }
         /* ODE */
-
-        $x = json_encode($params);
-
         //emit realitme notification
         SPODNOTIFICATION_CLASS_EventHandler::getInstance()->emitNotification(["plugin"      => "tchat",
                                                                               "operation"   => "commentAdded",
@@ -123,8 +121,8 @@ class SPODTCHAT_CTRL_Ajax extends OW_ActionController
                 'commentList' => $commentListCmp->render(),
                 'onloadScript' => OW::getDocument()->getOnloadScript(),
                 'commentCount' => BOL_CommentService::getInstance()->findCommentCount($params->getEntityType(), $params->getEntityId())
-            )
-        )
+              )
+           )
         );
     }
 
@@ -313,5 +311,4 @@ class SPODTCHAT_CTRL_Ajax extends OW_ActionController
 
         return $params;
     }
-
 }

@@ -6,7 +6,7 @@ error_reporting(-1);
 
 class SPODTCHAT_CMP_Comments extends BASE_CMP_Comments
 {
-    public static $NUMBER_OF_NESTED_LEVEL = 3;
+    public static $NUMBER_OF_NESTED_LEVEL = 0;
     public static $COMMENT_ENTITY_TYPE  = COCREATION_BOL_Service::COMMENT_ENTITY_TYPE;//default value
     public static $COMMENT_ENTITY_ID    = 1;//default value
 
@@ -20,6 +20,10 @@ class SPODTCHAT_CMP_Comments extends BASE_CMP_Comments
 
     public function initForm()
     {
+        OW::getDocument()->addScript(OW::getPluginManager()->getPlugin('spodtchat')->getStaticJsUrl() . 'vendor/livequery-1.1.1/jquery.livequery.js');
+        OW::getDocument()->addScript(OW::getPluginManager()->getPlugin('spodtchat')->getStaticJsUrl() . 'tchat.js');
+        OW::getDocument()->addScript(OW::getPluginManager()->getPlugin('spodtchat')->getStaticJsUrl() . 'commentsList.js');
+        OW::getDocument()->addScript(OW::getPluginManager()->getPlugin('spodtchat')->getStaticJsUrl() . 'spod_attachments.js');
         //OW::getDocument()->addOnloadScript("alert(\"".UTIL_Url::selfUrl()."\");");
 
         $jsParams = array(
@@ -71,7 +75,8 @@ class SPODTCHAT_CMP_Comments extends BASE_CMP_Comments
 
             if ( BOL_TextFormatService::getInstance()->isCommentsRichMediaAllowed() )
             {
-                $this->addComponent('attch', new BASE_CLASS_Attachment($this->params->getPluginKey(), $attchUid, $buttonContId));
+                //$this->addComponent('img_attch', new BASE_CLASS_Attachment($this->params->getPluginKey(), $attchUid, $buttonContId));
+                $this->addComponent('file_attch', new SPODTCHAT_CLASS_FileAttachment($this->params->getPluginKey(), $attchUid, $buttonContId));
             }
 
             $this->assign('buttonContId', $buttonContId);
@@ -80,9 +85,12 @@ class SPODTCHAT_CMP_Comments extends BASE_CMP_Comments
             $this->assign('taId', $taId);
             $this->assign('attchId', $attchId);
             $this->assign('commentId', $this->params->getEntityId());
+
+            $this->assign("temp_attach_uid", $attchUid);
+            $this->assign('theme_image_url', OW::getThemeManager()->getInstance()->getThemeImagesUrl());
         }
 
-        OW::getDocument()->addOnloadScript("new OwComments(" . json_encode($jsParams) . ");");
+        OW::getDocument()->addOnloadScript("window.tchatCommentsParams['" . $this->params->getEntityId() ."'] =  " . json_encode($jsParams) . ";");
 
         $this->assign('displayType', $this->params->getDisplayType());
 
@@ -90,10 +98,9 @@ class SPODTCHAT_CMP_Comments extends BASE_CMP_Comments
         $this->addComponent('commentList', new SPODTCHAT_CMP_CommentsList($this->params, $this->id));
 
         $js = UTIL_JsGenerator::composeJsString('
-                TCHAT                             = {};
-                TCHAT.currentUserId               = {$current_user_id}
-                TCHAT.ajax_tchat_get_comment_list = {$ajax_tchat_get_comment_list}
-                TCHAT.commentParams               = {$comment_params}
+                TCHAT                               = {};
+                TCHAT.currentUserId                 = {$current_user_id}
+                TCHAT.ajax_tchat_get_comment_list   = {$ajax_tchat_get_comment_list}
             ', array(
             'current_user_id'             => OW::getUser()->getId(),
             'ajax_tchat_get_comment_list' => OW::getRouter()->urlFor('SPODTCHAT_CTRL_Ajax', 'getCommentListRendered'),

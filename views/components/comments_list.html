@@ -37,9 +37,10 @@
 
     paper-fab.show_datalet{
         float: left;
+        left: 8px;
+        bottom: 9px;
         height: 22px;
         width: 22px;
-        margin-top: 5px;
         background: rgb(33, 150, 243);
         --iron-icon-height: 16px;
         --iron-icon-width: 16px;
@@ -81,6 +82,10 @@
         -webkit-animation-timing-function:ease-in-out;
         -webkit-animation-direction: alternate;
     }
+
+    .datalet_placeholder{
+        display: none;
+    }
 </style>
 {/literal}
 
@@ -115,6 +120,9 @@
                    <paper-fab mini icon="social:mood-bad" class="sentiment_badge sentiment_badge_disagree"></paper-fab>
                 {/if}
                 {decorator name='avatar_item' data=$comment.avatar}
+                {if $comment.datalet == true}
+                   <paper-fab mini class="show_datalet" icon="assessment" id="show_datalet_comment_$comment.commentId"></paper-fab>
+                {/if}
             </div>
             <div class="ow_comments_item_info" id="comment_{$comment.commentId}">
                 <span class="{if !empty($comment.cnxAction)}ow_comments_date_hover {/if}ow_comments_date ow_nowrap ow_tiny ow_remark">{$comment.date}</span>
@@ -131,14 +139,14 @@
             </div>
 
             {capture assign=clevel}commentsLevel{$comment.commentId}{/capture}
-            {if ${$clevel} <= 2}
-            <div class="spod_public_bottom_bar" style="margin-left: 60px;">
-                <div class="spod_public_bottom_bar_control" style="padding-left: 20px; height: 27px;">
+            {if ${$clevel} <= $levelsLimit}
+            <div class="spod_tchat_bottom_bar" style="margin-left: 60px;">
+                <div class="spod_tchat_bottom_bar_control" style="padding-left: 20px; height: 27px;">
                     <div class="ow_miniic_control" style="width: 100%;padding-top: 5px;" id="comment_bar_{$comment.commentId}">
                         {if ${$clevel} != {$levelsLimit}}
-                        <span id="spod_public_room_nested_comment_show_{$comment.commentId}" class="ow_miniic_comment"  style="position: relative; float: left;"></span>
+                        <span id="spod_tchat_room_nested_comment_show_{$comment.commentId}" class="ow_miniic_comment"  style="position: relative; float: left;"></span>
                         {capture assign=ccount}commentsCount{$comment.commentId}{/capture}
-                        <span id="ccount_{$comment.commentId}" class="spod_public_bottom_bar_counter_comments" style="position: relative; float: left;vertical-align: middle;color:#999;padding-left: 5px;">{${$ccount}}</span>
+                        <span id="ccount_{$comment.commentId}" class="spod_tchat_bottom_bar_counter_comments" style="position: relative; float: left;vertical-align: middle;color:#999;padding-left: 5px;">{${$ccount}}</span>
                         {/if}
                     </div>
                 </div>

@@ -10,9 +10,6 @@ class SPODTCHAT_CMP_CommentsList extends BASE_CMP_CommentsList
 
 	protected function init()
     {
-        OW::getDocument()->addScript(OW::getPluginManager()->getPlugin('spodtchat')->getStaticJsUrl() . 'commentsList.js');
-        OW::getDocument()->addScript(OW::getPluginManager()->getPlugin('spodtchat')->getStaticJsUrl() . 'tchat.js');
-
         if ( $this->commentCount === 0 && $this->params->getShowEmptyList() )
         {
             $this->assign('noComments', true);
@@ -67,7 +64,7 @@ class SPODTCHAT_CMP_CommentsList extends BASE_CMP_CommentsList
                 'respondUrl'      => OW::getRouter()->urlFor('SPODTCHAT_CTRL_Ajax', 'getCommentList'),//when page button is being pressed
                 'delUrl'          => OW::getRouter()->urlFor('SPODTCHAT_CTRL_Ajax', 'deleteComment'),
                 'addUrl'          => OW::getRouter()->urlFor('SPODTCHAT_CTRL_Ajax', 'addComment'),
-                'delAtchUrl'      => OW::getRouter()->urlFor('SPODTCHAT_CTRL_Ajax', 'deleteCommentAtatchment'),
+                'delAtchUrl'      => OW::getRouter()->urlFor('SPODTCHAT_CTRL_Attachment', 'deleteCommentAtatchment'),
                 'delConfirmMsg'   => OW::getLanguage()->text('base', 'comment_delete_confirm_message'),
                 'preloaderImgUrl' => OW::getThemeManager()->getCurrentTheme()->getStaticImagesUrl() . 'ajax_preloader_button.gif'
             );
@@ -95,12 +92,8 @@ class SPODTCHAT_CMP_CommentsList extends BASE_CMP_CommentsList
                 'countToLoad'        => $countToLoad
             )
         );
-        $addUrl =
 
-        OW::getDocument()->addOnloadScript(
-            "window.owCommentListCmps.items['$this->id'] = new SpodtchatCommentsList($jsParams);
-             window.owCommentListCmps.items['$this->id'].init();"
-        );
+        OW::getDocument()->addOnloadScript("window.tchatCommentsListParams['" . $this->id ."'] =  " . $jsParams . ";");
 
         $this->assign('components_url', SPODPR_COMPONENTS_URL);
         $this->assign('cid', $this->params->getEntityId());
@@ -159,10 +152,6 @@ class SPODTCHAT_CMP_CommentsList extends BASE_CMP_CommentsList
     }
 
     protected function getEntityLevel($id){
-        /*$comment = BOL_CommentService::getInstance()->findComment($id);
-        $level = 1;
-        while($comment = BOL_CommentService::getInstance()->findComment($comment->getCommentEntityId())) $level++;
-        return $level;*/
 
         $comment = BOL_CommentService::getInstance()->findComment($id);
         $level = 0;
@@ -207,56 +196,12 @@ class SPODTCHAT_CMP_CommentsList extends BASE_CMP_CommentsList
                 $commentsParams->level = $this->params->level + 1;
 
                 $datalet = ODE_BOL_Service::getInstance()->getDataletByPostIdWhereArray($value->getId(), array("comment", "public-room", "tchat"));
-
-                if(!empty($datalet)) {
-
-                    OW::getDocument()->addOnloadScript('$("#datalet_placeholder_' . $value->getId() . '_comment").css("display", "none");');
-                    OW::getDocument()->addOnloadScript('$("#comment_' . $value->getId() . '").append("<paper-fab mini class=\'show_datalet\' icon=\'assessment\' style=\'float:left; margin-top: 5px;\' id=\'show_datalet_comment_' . $value->getId() .'\'></paper-fab>");');
-                    OW::getDocument()->addOnloadScript('
-                               /*$("#comment_bar_' . $value->getId() . '").append("<paper-fab mini class=\'show_datalet\' icon=\'assessment\' style=\'float:left;\' id=\'show_datalet_comment_' . $value->getId() .'\'></paper-fab>");*/
-                               $("#show_datalet_comment_' . $value->getId() .'").click(function(){
-                                     $("#datalet_placeholder_' . $value->getId() . '_comment").toggle(\'fade\',
-                                                                                          {direction: \'top\'},
-                                                                                          function(){
-                                                                                             if($("#datalet_placeholder_' . $value->getId() . '_comment").css(\'display\') == \'none\'){
-                                                                                                $("#show_datalet_comment_' . $value->getId() . '").css(\'background\', \'#2196F3\');
-                                                                                             }
-                                                                                             else
-                                                                                                $("#show_datalet_comment_' . $value->getId() . '").css(\'background\', \'#5B646A\');
-
-                                                                                                //resize the datalet when is opened
-                                                                                                var datalet = $($("#datalet_placeholder_' . $value->getId() . '_comment").children()[1])[0];
-                                                                                                if(datalet.refresh != undefined)
-                                                                                                    datalet.refresh();
-                                                                                                else
-                                                                                                    datalet.behavior.presentData();
-                                                                                          },
-                                                                                          500);
-                                     $("#topic_container").scrollTop($(\'#datalet_placeholder_' . $value->getId() . '_comment\').offset().top - 50);
-                               });
-                    ');
-                }
-
-                $this->addComponent('nestedComments' . $value->getId(), new SPODTCHAT_CMP_Comments($commentsParams, SPODTCHAT_CMP_Comments::$NUMBER_OF_NESTED_LEVEL, SPODTCHAT_CMP_Comments::$COMMENT_ENTITY_TYPE, SPODTCHAT_CMP_Comments::$COMMENT_ENTITY_ID));
-
-                OW::getDocument()->addOnloadScript(
-                    "$(document).ready(function(){
-                        $('#spod_public_room_nested_comment_show_" . $value->getId() . "').click(function(){
-                              $('#nc_" . $value->getId() . "').toggle('fade', {direction: 'top'}, 500);
-                              var d = $('#nc_" . $value->getId() . "').css('display');
-                              if($('#spod_public_room_nested_comment_show_" . $value->getId() . "').css('background-position') == '-38px -38px'){
-                                 $('#spod_public_room_nested_comment_show_" . $value->getId() . "').css('background-position', '-38px 0px');
-                              }else{
-                                 $('#spod_public_room_nested_comment_show_" . $value->getId() . "').css('background-position', '-38px -38px');
-                              }
-                           });
-                    });"
-                );
+                $this->addComponent('nestedComments' . $value->getId(), new SPODTCHAT_CMP_Comments($commentsParams, SPODTCHAT_CLASS_Consts::$NUMBER_OF_NESTED_LEVEL, SPODTCHAT_CMP_Comments::$COMMENT_ENTITY_TYPE, SPODTCHAT_CMP_Comments::$COMMENT_ENTITY_ID));
 
                 $this->assign('commentSentiment' . $value->getId(), SPODTCHAT_BOL_Service::getInstance()->getCommentSentiment($value->getId())->sentiment);
-                $this->assign('commentsCount' . $value->getId(), BOL_CommentService::getInstance()->findCommentCount(COCREATION_BOL_Service::COMMENT_ENTITY_TYPE, $value->getId()));
+                $this->assign('commentsCount' . $value->getId(), BOL_CommentService::getInstance()->findCommentCount(SPODTCHAT_CMP_Comments::$COMMENT_ENTITY_TYPE, $value->getId()));
                 $this->assign('commentsLevel' . $value->getId(), $this->params->level);
-                $this->assign('levelsLimit', SPODTCHAT_CMP_Comments::$NUMBER_OF_NESTED_LEVEL);
+                $this->assign('levelsLimit', SPODTCHAT_CLASS_Consts::$NUMBER_OF_NESTED_LEVEL);
             }
 
             /*End adding nasted level*/
@@ -269,6 +214,7 @@ class SPODTCHAT_CMP_CommentsList extends BASE_CMP_CommentsList
                 'date'        => UTIL_DateTime::formatDate($value->getCreateStamp()),
                 'userId'      => $value->getUserId(),
                 'commentId'   => $value->getId(),
+                'datalet'     => !empty($datalet),
                 'avatar'      => $userAvatarArrayList[$value->getUserId()]
             );
 
@@ -276,7 +222,7 @@ class SPODTCHAT_CMP_CommentsList extends BASE_CMP_CommentsList
 
             if ( $value->getAttachment() !== null )
             {
-                $tempCmp = new BASE_CMP_OembedAttachment((array) json_decode($value->getAttachment()), $this->isOwnerAuthorized);
+                $tempCmp = new SPODTCHAT_CMP_TchatOembedAttachment((array) json_decode($value->getAttachment()), $this->isOwnerAuthorized);
                 $contentAdd .= '<div class="ow_attachment ow_small" id="att' . $value->getId() . '">' . $tempCmp->render() . '</div>';
             }
 
