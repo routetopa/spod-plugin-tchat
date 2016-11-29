@@ -93,10 +93,14 @@ class SPODTCHAT_CMP_CommentsList extends BASE_CMP_CommentsList
             )
         );
 
-        OW::getDocument()->addOnloadScript("window.tchatCommentsListParams['" . $this->id ."'] =  " . $jsParams . ";");
+        OW::getDocument()->addOnloadScript("$('#". $this->cmpContextId ."').livequery( function(e){
+                                                    window.tchatCommentList['". $this->id ."'] = new SpodtchatCommentsList('" . $jsParams . "');
+                                                    window.tchatCommentList['".$this->id."'].init();
+                                           });");
 
         $this->assign('components_url', SPODPR_COMPONENTS_URL);
         $this->assign('cid', $this->params->getEntityId());
+        $this->assign('cmpContext', $this->cmpContextId);
     }
 	
 	

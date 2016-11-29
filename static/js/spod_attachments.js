@@ -1,5 +1,5 @@
 var SPODFileAttachment = function(params) {
-    $.extend(this, params);
+    $.extend(this, JSON.parse(params));
     this.$context = $('#' + this.uid);
     //this.$previewCont = $('.ow_file_attachment_preview', this.$context);
     this.$previewCont = $('#ow_file_attachment_preview_' + this.uid);
@@ -236,9 +236,9 @@ var SPODFileAttachment = function(params) {
 };
 
 OW.bind('base.file_attachment', function(data) {
-    if (window.tchatAttachmentCmps[data.uid]) {
-        window.tchatAttachmentCmps[data.newUid] = window.tchatAttachmentCmps[data.uid];
-        delete window.tchatAttachmentCmps[data.uid];
-        window.tchatAttachmentCmps[data.newUid].reset(data.newUid);
+    if (window.tchatAttachment[data.uid]) {
+        window.tchatAttachment[data.newUid] = window.tchatAttachment[data.uid];
+        delete window.tchatAttachment[data.uid];
+        window.tchatAttachment[data.newUid].reset(data.newUid);
     }
 });

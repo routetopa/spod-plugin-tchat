@@ -1,4 +1,5 @@
 var SpodtchatCommentsList = function( params ){
+    params = JSON.parse(params);
     this.$context = $('#' + params.contextId);
     $.extend(this, params, owCommentListCmps.staticData);
     this.$loader = $('.ow_comment_list_loader', this.$context);
@@ -227,9 +228,6 @@ SpodtchatCommentsList.prototype = {
                 $("#new_message_" + data.entityId).css('color', 'transparent');
                 $("#new_message_" + data.entityId).removeClass("newMessagesArrived");
                 $("#comment_container_" + data.entityId).removeClass("emphasizedComment");
-
-                window.tchatCommentCmps.refreshCommentsBehavior();
-
             },
             error : function( XMLHttpRequest, textStatus, errorThrown ){
                 OW.error('Ajax Error: '+textStatus+'!');
@@ -341,9 +339,6 @@ SPODTCHAT.commentSendMessage = function(message, context)
             /* ODE */
 
             $('.ow_file_attachment_preview').html("");
-
-            window.tchatCommentCmps.refreshCommentsBehavior();
-            //setTimeout(function(){new Function(data.onloadScript)();}, 1000);
 
         },
         error: function( XMLHttpRequest, textStatus, errorThrown ){
