@@ -45,7 +45,7 @@ class SPODTCHAT_CMP_CommentsList extends BASE_CMP_CommentsList
 
             if ( $pagesCount > 1 )
             {
-                $pages = $this->getPages($this->page, $pagesCount, 8);
+                $pages = $this->getPages($this->page, $pagesCount, 20);
                 $this->assign('pages', $pages);
             }
         }
@@ -94,8 +94,8 @@ class SPODTCHAT_CMP_CommentsList extends BASE_CMP_CommentsList
         );
 
         OW::getDocument()->addOnloadScript("$('#". $this->cmpContextId ."').livequery( function(e){
-                                                    window.tchatCommentList['". $this->id ."'] = new SpodtchatCommentsList('" . $jsParams . "');
-                                                    window.tchatCommentList['".$this->id."'].init();
+                                               window.tchatCommentList['". $this->id ."'] = new SpodtchatCommentsList('" . $jsParams . "');
+                                               window.tchatCommentList['".$this->id."'].init();
                                            });");
 
         $this->assign('components_url', SPODPR_COMPONENTS_URL);

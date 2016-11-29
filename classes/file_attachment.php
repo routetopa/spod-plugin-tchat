@@ -71,7 +71,7 @@ class SPODTCHAT_CLASS_FileAttachment extends OW_Component
         );
         //OW::getDocument()->addOnloadScript("window.tchatAttachmentParams['" . $this->uid . "'] = " . json_encode($params) . ";");
         OW::getDocument()->addOnloadScript("$('#". $this->uid ."').livequery( function(e){
-                                                    window.tchatAttachment['". $this->uid ."'] = new SPODFileAttachment('". json_encode($params) ."');
+                                               window.tchatAttachment['". $this->uid ."'] = new SPODFileAttachment('". json_encode($params) ."');
                                            });");
 
 

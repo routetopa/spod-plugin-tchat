@@ -85,13 +85,15 @@ class SPODTCHAT_CMP_Comments extends BASE_CMP_Comments
             $this->assign('taId', $taId);
             $this->assign('attchId', $attchId);
             $this->assign('commentId', $this->params->getEntityId());
+            $this->assign('topList', true);
+            $this->assign('bottomList', false);
 
             $this->assign("temp_attach_uid", $attchUid);
             $this->assign('theme_image_url', OW::getThemeManager()->getInstance()->getThemeImagesUrl());
         }
 
         OW::getDocument()->addOnloadScript("$('#". $taId ."').livequery( function(e){
-                                                    window.tchatComments['" . $this->params->getEntityId() ."'] = new OwComments(". json_encode($jsParams) .");
+                                              window.tchatComments['" . $this->params->getEntityId() ."'] = new OwComments(". json_encode($jsParams) .");
                                            });");
 
         $this->assign('displayType', $this->params->getDisplayType());

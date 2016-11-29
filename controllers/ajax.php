@@ -24,6 +24,7 @@ class SPODTCHAT_CTRL_Ajax extends OW_ActionController
         $errorMessage = false;
         $isMobile = !empty($_POST['isMobile']) && (bool) $_POST['isMobile'];
         $params = $this->getParamsObject();
+        $params->setCommentCountOnPage(20);
 
         if ( empty($_POST['commentText']) && empty($_POST['attachmentInfo']) && empty($_POST['oembedInfo']) )
         {
@@ -129,6 +130,7 @@ class SPODTCHAT_CTRL_Ajax extends OW_ActionController
     public function getCommentList()
     {
         $params = $this->getParamsObject();
+        $params->setCommentCountOnPage(20);
 
         $page = ( isset($_POST['page']) && (int) $_POST['page'] > 0) ? (int) $_POST['page'] : 1;
         $commentsList = new SPODTCHAT_CMP_CommentsList($params, $_POST['cid'], $page);
