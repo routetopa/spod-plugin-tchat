@@ -321,8 +321,8 @@ SPODTCHAT.commentSendMessage = function(message, context)
         data: dataToSend,
         dataType: 'JSON',
         success: function(data){
-            self.repaintCommentsList(data);
-            //OW.trigger('base.photo_attachment_uid_update', {uid:self.attchUid, newUid:data.newAttachUid});
+            //self.repaintCommentsList(data);
+            window.tchatCommentList[self.uid].reload(1);
             OW.trigger('base.file_attachment', {uid:self.attchUid, newUid:data.newAttachUid});
             self.eventParams.commentCount = data.commentCount;
             OW.trigger('base.comment_added', self.eventParams);
