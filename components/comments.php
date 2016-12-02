@@ -92,8 +92,9 @@ class SPODTCHAT_CMP_Comments extends BASE_CMP_Comments
             $this->assign('theme_image_url', OW::getThemeManager()->getInstance()->getThemeImagesUrl());
         }
 
-        OW::getDocument()->addOnloadScript("$('#". $taId ."').livequery( function(e){
+        OW::getDocument()->addOnloadScript("$('#". $taId ."').livequery( function(){
                                               window.tchatComments['" . $this->params->getEntityId() ."'] = new OwComments(". json_encode($jsParams) .");
+                                              $('#". $taId ."').expire();
                                            });");
 
         $this->assign('displayType', $this->params->getDisplayType());

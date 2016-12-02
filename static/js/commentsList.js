@@ -110,60 +110,6 @@ SpodtchatCommentsList.prototype = {
             }
         );
 
-        //ISISLab CODE - Resport abuse from comment management
-        $.each(this.actionArray.abuses,
-            function(i,o){
-                $('#'+i).click(
-                    function(){
-                        try{
-                            var form_content = $("#report-abuse-confirm").children();
-                            $("#abuseMessage").html("Il seguente commento risulta inappropriato :\n \"" +  o.message + "\"");
-                            $("#commentId").val(o.id);
-
-                            window.report_abuse_floatbox = new OW_FloatBox({
-                                $title: 'Report abuse',
-                                $contents: form_content,
-                                icon_class: "ow_ic_delete",
-                                width: 450
-                            });
-                        }catch(err){
-                            alert(err.message);
-                        }
-                    }
-                );
-            }
-        );
-
-        $.each(this.actionArray.remove_abuses,
-            function(i,o){
-                $('#'+i).click(
-                    function(){
-                        try{
-                            var form_content = $("#remove-abuse-confirm").children();
-                            $("#commentId").val(o.id);
-
-                            window.remove_abuse_floatbox = new OW_FloatBox({
-                                $title: 'Remove abuse',
-                                $contents: form_content,
-                                icon_class: "ow_ic_delete",
-                                width: 450
-                            });
-                        }catch(err){
-                            alert(err.message);
-                        }
-                    }
-                );
-            }
-        );
-
-        //point out abuse comment
-        var abuseCommentId = window.location.href.split("#")[1];
-        if(abuseCommentId && !$.jStorage.get('abuseCommentFound')){
-            self.findPageForComment(abuseCommentId, 1, this.pages.length - 1);
-        }
-
-        //ISISLab CODE - end report abuse management
-
         for( i = 0; i < this.commentIds.length; i++ )
         {
             if( $('#att'+this.commentIds[i]).length > 0 )
@@ -268,7 +214,6 @@ SpodtchatCommentsList.prototype = {
                         return;
                     }
                 }else{
-                    $.jStorage.set('abuseCommentFound', true);
                     self.$context.replaceWith(data.commentList);
                     OW.addScript(data.onloadScript);
                     window.location.hash=commentId;

@@ -64,7 +64,7 @@ class SPODTCHAT_CMP_CommentsList extends BASE_CMP_CommentsList
                 'respondUrl'      => OW::getRouter()->urlFor('SPODTCHAT_CTRL_Ajax', 'getCommentList'),//when page button is being pressed
                 'delUrl'          => OW::getRouter()->urlFor('SPODTCHAT_CTRL_Ajax', 'deleteComment'),
                 'addUrl'          => OW::getRouter()->urlFor('SPODTCHAT_CTRL_Ajax', 'addComment'),
-                'delAtchUrl'      => OW::getRouter()->urlFor('SPODTCHAT_CTRL_Attachment', 'deleteCommentAtatchment'),
+                'delAtchUrl'      => OW::getRouter()->urlFor('SPODTCHAT_CTRL_Attachment', 'deleteCommentAttachment'),
                 'delConfirmMsg'   => OW::getLanguage()->text('base', 'comment_delete_confirm_message'),
                 'preloaderImgUrl' => OW::getThemeManager()->getCurrentTheme()->getStaticImagesUrl() . 'ajax_preloader_button.gif'
             );
@@ -93,9 +93,10 @@ class SPODTCHAT_CMP_CommentsList extends BASE_CMP_CommentsList
             )
         );
 
-        OW::getDocument()->addOnloadScript("$('#". $this->cmpContextId ."').livequery( function(e){
+        OW::getDocument()->addOnloadScript("$('#". $this->cmpContextId ."').livequery( function(){
                                                window.tchatCommentList['". $this->id ."'] = new SpodtchatCommentsList('" . $jsParams . "');
                                                window.tchatCommentList['".$this->id."'].init();
+                                               $('#". $this->cmpContextId ."').expire();
                                            });");
 
         $this->assign('components_url', SPODPR_COMPONENTS_URL);
