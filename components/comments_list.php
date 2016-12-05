@@ -31,6 +31,7 @@ class SPODTCHAT_CMP_CommentsList extends BASE_CMP_CommentsList
         else
         {
             $commentList = $this->commentService->findCommentList($this->params->getEntityType(), $this->params->getEntityId(), $this->page, $this->params->getCommentCountOnPage());
+            $commentList = array_reverse($commentList);
         }
 
         OW::getEventManager()->trigger(new OW_Event('base.comment_list_prepare_data', array('list' => $commentList, 'entityType' => $this->params->getEntityType(), 'entityId' => $this->params->getEntityId())));
