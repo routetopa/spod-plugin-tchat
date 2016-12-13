@@ -73,7 +73,10 @@ SpodtchatCommentsList.prototype = {
                                     entityId:self.entityId,
                                     initialCount:self.initialCount,
                                     page:self.page,
-                                    commentId:o
+                                    commentId:o,
+                                    numberOfNestedLevel: self.numberOfNestedLevel,
+                                    commentEntityType: self.commentEntityType,
+                                    commentEntityId: self.commentEntityId
                                 },
                                 dataType: 'json',
                                 success : function(data){
@@ -133,7 +136,10 @@ SpodtchatCommentsList.prototype = {
                                 page:self.page,
                                 initialCount:self.initialCount,
                                 loadMoreCount:self.loadMoreCount,
-                                commentId:self.commentIds[e.data.i]
+                                commentId:self.commentIds[e.data.i],
+                                numberOfNestedLevel: self.numberOfNestedLevel,
+                                commentEntityType: self.commentEntityType,
+                                commentEntityId: self.commentEntityId
                             },
                             dataType: 'json'
                         });
@@ -158,7 +164,10 @@ SpodtchatCommentsList.prototype = {
                 entityId:self.entityId,
                 initialCount:self.initialCount,
                 loadMoreCount:self.loadMoreCount,
-                page:page
+                page:page,
+                numberOfNestedLevel: self.numberOfNestedLevel,
+                commentEntityType: self.commentEntityType,
+                commentEntityId: self.commentEntityId
             },
             dataType: 'json',
             success : function(data){
@@ -198,7 +207,10 @@ SpodtchatCommentsList.prototype = {
                 page: currentPage,
                 initialCount:self.initialCount,
                 loadMoreCount:self.loadMoreCount,
-                commentId:commentId
+                commentId:commentId,
+                numberOfNestedLevel: self.numberOfNestedLevel,
+                commentEntityType: self.commentEntityType,
+                commentEntityId: self.commentEntityId
             },
             dataType: 'json',
             success : function(data){
@@ -249,7 +261,10 @@ SPODTCHAT.commentSendMessage = function(message, context)
         initialCount: self.initialCount,
         datalet: ODE.dataletParameters,
         plugin: ODE.pluginPreview,
-        sentiment: (typeof sentiment === 'undefined') ? '' : sentiment
+        sentiment: (typeof sentiment === 'undefined') ? '' : sentiment,
+        numberOfNestedLevel: self.numberOfNestedLevel,
+        commentEntityType: self.commentEntityType,
+        commentEntityId: self.commentEntityId
     };
 
     if( self.attachmentInfo ){
