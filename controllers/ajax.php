@@ -83,6 +83,11 @@ class SPODTCHAT_CTRL_Ajax extends OW_ActionController
                 $_REQUEST['plugin'],
                 $_REQUEST['datalet']['data']);
         }
+
+        //Add comment event trigger
+        $addCommentEvent = new OW_Event('spodtchat.add_comment', array('comment' => $comment));
+        OW::getEventManager()->trigger($addCommentEvent);
+
         /* ODE */
         //emit realitme notification
         SPODNOTIFICATION_CLASS_EventHandler::getInstance()->emitNotification(["plugin"      => "tchat",
