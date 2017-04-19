@@ -86,8 +86,8 @@ class SPODTCHAT_CTRL_Ajax extends OW_ActionController
 
         //Add comment event trigger for notification system
         $addCommentEvent = new OW_Event('spodtchat.add_comment', array('comment' => $comment));
-        //OW::getEventManager()->trigger($addCommentEvent);
-        //$data = array('entityId' => $comment->getCommentEntityId());
+        OW::getEventManager()->trigger($addCommentEvent);
+        $data = array('entityId' => $comment->getCommentEntityId());
         /*$event = new OW_Event('notification_system.add_notification', array(
             'type'      => "mail",
             'plugin' => $params->getPluginKey(),
