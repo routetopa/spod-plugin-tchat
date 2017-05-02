@@ -8,6 +8,29 @@ class SPODTCHAT_CMP_CommentsList extends BASE_CMP_CommentsList
 {
 	protected $actionArr = array('comments' => array(), 'users' => array(), 'abuses' => array(), 'remove_abuses' => array());
 
+    public function __construct( SPODTCHAT_CLASS_CommentsParams $params, $id, $page = 1 )
+    {
+        OW_Component::__construct();
+        $batchData = $params->getBatchData();
+        $this->staticData = empty($batchData['_static']) ? array() : $batchData['_static'];
+        $batchData = isset($batchData[$params->getEntityType()][$params->getEntityId()]) ? $batchData[$params->getEntityType()][$params->getEntityId()] : array();
+        $this->params = $params;
+        $this->batchData = $batchData;
+        $this->id = $id;
+        $this->page = $page;
+        $this->isModerator = OW::getUser()->isAuthorized($params->getPluginKey());
+        $this->isOwnerAuthorized = (OW::getUser()->isAuthenticated() && $this->params->getOwnerId() !== null && (int) $this->params->getOwnerId() === (int) OW::getUser()->getId());
+        $this->isBaseModerator = OW::getUser()->isAuthorized('base');
+
+        $this->commentService = BOL_CommentService::getInstance();
+        $this->avatarService = BOL_AvatarService::getInstance();
+        $this->cmpContextId = "comments-list-$id";
+        $this->assign('cmpContext', $this->cmpContextId);
+
+        $this->commentCount = isset($batchData['commentsCount']) ? $batchData['commentsCount'] : $this->commentService->findCommentCount($params->getEntityType(), $params->getEntityId());
+        $this->init();
+    }
+
 	protected function init()
     {
         if ( $this->commentCount === 0 && $this->params->getShowEmptyList() )
@@ -31,6 +54,7 @@ class SPODTCHAT_CMP_CommentsList extends BASE_CMP_CommentsList
         else
         {
             $commentList = $this->commentService->findCommentList($this->params->getEntityType(), $this->params->getEntityId(), $this->page, $this->params->getCommentCountOnPage());
+            $commentList = array_reverse($commentList);
         }
 
         OW::getEventManager()->trigger(new OW_Event('base.comment_list_prepare_data', array('list' => $commentList, 'entityType' => $this->params->getEntityType(), 'entityId' => $this->params->getEntityId())));
@@ -45,7 +69,7 @@ class SPODTCHAT_CMP_CommentsList extends BASE_CMP_CommentsList
 
             if ( $pagesCount > 1 )
             {
-                $pages = $this->getPages($this->page, $pagesCount, 8);
+                $pages = $this->getPages($this->page, $pagesCount, 20);
                 $this->assign('pages', $pages);
             }
         }
@@ -64,7 +88,7 @@ class SPODTCHAT_CMP_CommentsList extends BASE_CMP_CommentsList
                 'respondUrl'      => OW::getRouter()->urlFor('SPODTCHAT_CTRL_Ajax', 'getCommentList'),//when page button is being pressed
                 'delUrl'          => OW::getRouter()->urlFor('SPODTCHAT_CTRL_Ajax', 'deleteComment'),
                 'addUrl'          => OW::getRouter()->urlFor('SPODTCHAT_CTRL_Ajax', 'addComment'),
-                'delAtchUrl'      => OW::getRouter()->urlFor('SPODTCHAT_CTRL_Attachment', 'deleteCommentAtatchment'),
+                'delAtchUrl'      => OW::getRouter()->urlFor('SPODTCHAT_CTRL_Attachment', 'deleteCommentAttachment'),
                 'delConfirmMsg'   => OW::getLanguage()->text('base', 'comment_delete_confirm_message'),
                 'preloaderImgUrl' => OW::getThemeManager()->getCurrentTheme()->getStaticImagesUrl() . 'ajax_preloader_button.gif'
             );
@@ -89,14 +113,22 @@ class SPODTCHAT_CMP_CommentsList extends BASE_CMP_CommentsList
                 'commentCountOnPage' => $this->params->getCommentCountOnPage(),
                 'cid'                => $this->id,
                 'actionArray'        => $this->actionArr,
-                'countToLoad'        => $countToLoad
+                'countToLoad'        => $countToLoad,
+                'numberOfNestedLevel' => $this->params->getNumberOfNestedLevel(),
+                'commentEntityType'   => $this->params->getCommentEntityType(),
+                'commentEntityId'     => $this->params->getCommentEntityId()
             )
         );
 
-        OW::getDocument()->addOnloadScript("window.tchatCommentsListParams['" . $this->id ."'] =  " . $jsParams . ";");
+        OW::getDocument()->addOnloadScript("$('#". $this->cmpContextId ."').livequery( function(){
+                                               window.tchatCommentList['". $this->id ."'] = new SpodtchatCommentsList('" . $jsParams . "');
+                                               window.tchatCommentList['".$this->id."'].init();
+                                               $('#". $this->cmpContextId ."').expire();
+                                           });");
 
         $this->assign('components_url', SPODPR_COMPONENTS_URL);
         $this->assign('cid', $this->params->getEntityId());
+        $this->assign('cmpContext', $this->cmpContextId);
     }
 	
 	
@@ -183,9 +215,9 @@ class SPODTCHAT_CMP_CommentsList extends BASE_CMP_CommentsList
             /*Add nasted level*/
             if(!isset($this->params->level)) $this->params->level = $this->getEntityLevel($value->getId());
 
-            if($this->params->level <= SPODTCHAT_CMP_Comments::$NUMBER_OF_NESTED_LEVEL) {
+            if($this->params->level <= $this->params->getNumberOfNestedLevel()) {
                 //nasted comment
-                $commentsParams = new BASE_CommentsParams('spodtchat', SPODTCHAT_CMP_Comments::$COMMENT_ENTITY_TYPE);
+                $commentsParams = new SPODTCHAT_CLASS_CommentsParams('spodtchat', $this->params->getCommentEntityType());
                 $commentsParams->setEntityId($value->getId());
                 $commentsParams->setDisplayType(BASE_CommentsParams::DISPLAY_TYPE_WITH_LOAD_LIST_MINI);
                 $commentsParams->setCommentCountOnPage(5);
@@ -193,15 +225,18 @@ class SPODTCHAT_CMP_CommentsList extends BASE_CMP_CommentsList
                 $commentsParams->setAddComment(TRUE);
                 $commentsParams->setWrapInBox(false);
                 $commentsParams->setShowEmptyList(false);
+                $commentsParams->setNumberOfNestedLevel($this->params->getNumberOfNestedLevel());
+                $commentsParams->setCommentEntityType($this->params->getCommentEntityType());
+                $commentsParams->setCommentEntityId($this->params->getCommentEntityId());
                 $commentsParams->level = $this->params->level + 1;
 
                 $datalet = ODE_BOL_Service::getInstance()->getDataletByPostIdWhereArray($value->getId(), array("comment", "public-room", "tchat"));
-                $this->addComponent('nestedComments' . $value->getId(), new SPODTCHAT_CMP_Comments($commentsParams, SPODTCHAT_CLASS_Consts::$NUMBER_OF_NESTED_LEVEL, SPODTCHAT_CMP_Comments::$COMMENT_ENTITY_TYPE, SPODTCHAT_CMP_Comments::$COMMENT_ENTITY_ID));
+                $this->addComponent('nestedComments' . $value->getId(), new SPODTCHAT_CMP_Comments($commentsParams));
 
                 $this->assign('commentSentiment' . $value->getId(), SPODTCHAT_BOL_Service::getInstance()->getCommentSentiment($value->getId())->sentiment);
-                $this->assign('commentsCount' . $value->getId(), BOL_CommentService::getInstance()->findCommentCount(SPODTCHAT_CMP_Comments::$COMMENT_ENTITY_TYPE, $value->getId()));
+                $this->assign('commentsCount' . $value->getId(), BOL_CommentService::getInstance()->findCommentCount($this->params->getCommentEntityType(), $value->getId()));
                 $this->assign('commentsLevel' . $value->getId(), $this->params->level);
-                $this->assign('levelsLimit', SPODTCHAT_CLASS_Consts::$NUMBER_OF_NESTED_LEVEL);
+                $this->assign('levelsLimit', $this->params->getNumberOfNestedLevel());
             }
 
             /*End adding nasted level*/

@@ -1,21 +1,40 @@
 <?php
 
-ini_set('display_errors',1);
-ini_set('display_startup_errors',1);
-error_reporting(-1);
-
 class SPODTCHAT_CMP_Comments extends BASE_CMP_Comments
 {
-    public static $NUMBER_OF_NESTED_LEVEL = 0;
-    public static $COMMENT_ENTITY_TYPE  = COCREATION_BOL_Service::COMMENT_ENTITY_TYPE;//default value
-    public static $COMMENT_ENTITY_ID    = 1;//default value
-
-    public function __construct( BASE_CommentsParams $params, $nested_level, $entity_type, $entity_id)
+    public function __construct( SPODTCHAT_CLASS_CommentsParams $params)
     {
-        $this::$NUMBER_OF_NESTED_LEVEL = $nested_level;
-        $this::$COMMENT_ENTITY_TYPE    = $entity_type;
-        $this::$COMMENT_ENTITY_ID      = $entity_id;
-        parent::__construct($params);
+        OW_Component::__construct();
+        $this->params = $params;
+        $this->batchData = $params->getBatchData();
+        $this->staticData = empty($this->batchData['_static']) ? array() : $this->batchData['_static'];
+        $this->batchData = isset($this->batchData[$params->getEntityType()][$params->getEntityId()]) ? $this->batchData[$params->getEntityType()][$params->getEntityId()] : array();
+
+        srand(time());
+        $this->id = $params->getEntityType() . $params->getEntityId() . rand(1, 10000);
+        $this->cmpContextId = "comments-$this->id";
+        $this->assign('cmpContext', $this->cmpContextId);
+        $this->assign('wrapInBox', $params->getWrapInBox());
+        $this->assign('topList', in_array($params->getDisplayType(), array(BASE_CommentsParams::DISPLAY_TYPE_WITH_LOAD_LIST, BASE_CommentsParams::DISPLAY_TYPE_WITH_LOAD_LIST_MINI)));
+        $this->assign('bottomList', $params->getDisplayType() == BASE_CommentsParams::DISPLAY_TYPE_WITH_PAGING);
+        $this->assign('mini', $params->getDisplayType() == BASE_CommentsParams::DISPLAY_TYPE_WITH_LOAD_LIST_MINI);
+
+        $this->isAuthorized = OW::getUser()->isAuthorized($params->getPluginKey(), 'add_comment') && $params->getAddComment();
+
+        if ( !$this->isAuthorized )
+        {
+            $errorMessage = $params->getErrorMessage();
+
+            if ( empty($errorMessage) )
+            {
+                $status = BOL_AuthorizationService::getInstance()->getActionStatus($params->getPluginKey(), 'add_comment');
+                $errorMessage = OW::getUser()->isAuthenticated() ? $status['msg'] : OW::getLanguage()->text('base', 'comments_add_login_message');
+            }
+
+            $this->assign('authErrorMessage', $errorMessage);
+        }
+
+        $this->initForm();
     }
 
     public function initForm()
@@ -54,6 +73,9 @@ class SPODTCHAT_CMP_Comments extends BASE_CMP_Comments
             $jsParams['attchId'] = $attchId;
             $jsParams['attchUid'] = $attchUid;
             $jsParams['enableSubmit'] = true;
+            $jsParams['numberOfNestedLevel'] = $this->params->getNumberOfNestedLevel();
+            $jsParams['commentEntityType']   = $this->params->getCommentEntityType();
+            $jsParams['commentEntityId']     = $this->params->getCommentEntityId();
             $jsParams['mediaAllowed'] = BOL_TextFormatService::getInstance()->isCommentsRichMediaAllowed();
             $jsParams['labels'] = array(
                 'emptyCommentMsg' => OW::getLanguage()->text('base', 'empty_comment_error_msg'),
@@ -85,12 +107,17 @@ class SPODTCHAT_CMP_Comments extends BASE_CMP_Comments
             $this->assign('taId', $taId);
             $this->assign('attchId', $attchId);
             $this->assign('commentId', $this->params->getEntityId());
+            $this->assign('topList', true);
+            $this->assign('bottomList', false);
 
             $this->assign("temp_attach_uid", $attchUid);
             $this->assign('theme_image_url', OW::getThemeManager()->getInstance()->getThemeImagesUrl());
         }
 
-        OW::getDocument()->addOnloadScript("window.tchatCommentsParams['" . $this->params->getEntityId() ."'] =  " . json_encode($jsParams) . ";");
+        OW::getDocument()->addOnloadScript("$('#". $taId ."').livequery( function(){
+                                              window.tchatComments['" . $this->params->getEntityId() ."'] = new OwComments(". json_encode($jsParams) .");
+                                              $('#". $taId ."').expire();
+                                           });");
 
         $this->assign('displayType', $this->params->getDisplayType());
 
@@ -103,11 +130,9 @@ class SPODTCHAT_CMP_Comments extends BASE_CMP_Comments
                 TCHAT.ajax_tchat_get_comment_list   = {$ajax_tchat_get_comment_list}
             ', array(
             'current_user_id'             => OW::getUser()->getId(),
-            'ajax_tchat_get_comment_list' => OW::getRouter()->urlFor('SPODTCHAT_CTRL_Ajax', 'getCommentListRendered'),
+            'ajax_tchat_get_comment_list' => OW::getRouter()->urlFor('SPODTCHAT_CTRL_Ajax', 'getCommentList'),
             'comment_params'              => $jsParams
         ));
         OW::getDocument()->addOnloadScript($js);
     }
 }
-
-?>

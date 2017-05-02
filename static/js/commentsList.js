@@ -1,4 +1,5 @@
 var SpodtchatCommentsList = function( params ){
+    params = JSON.parse(params);
     this.$context = $('#' + params.contextId);
     $.extend(this, params, owCommentListCmps.staticData);
     this.$loader = $('.ow_comment_list_loader', this.$context);
@@ -72,7 +73,10 @@ SpodtchatCommentsList.prototype = {
                                     entityId:self.entityId,
                                     initialCount:self.initialCount,
                                     page:self.page,
-                                    commentId:o
+                                    commentId:o,
+                                    numberOfNestedLevel: self.numberOfNestedLevel,
+                                    commentEntityType: self.commentEntityType,
+                                    commentEntityId: self.commentEntityId
                                 },
                                 dataType: 'json',
                                 success : function(data){
@@ -109,60 +113,6 @@ SpodtchatCommentsList.prototype = {
             }
         );
 
-        //ISISLab CODE - Resport abuse from comment management
-        $.each(this.actionArray.abuses,
-            function(i,o){
-                $('#'+i).click(
-                    function(){
-                        try{
-                            var form_content = $("#report-abuse-confirm").children();
-                            $("#abuseMessage").html("Il seguente commento risulta inappropriato :\n \"" +  o.message + "\"");
-                            $("#commentId").val(o.id);
-
-                            window.report_abuse_floatbox = new OW_FloatBox({
-                                $title: 'Report abuse',
-                                $contents: form_content,
-                                icon_class: "ow_ic_delete",
-                                width: 450
-                            });
-                        }catch(err){
-                            alert(err.message);
-                        }
-                    }
-                );
-            }
-        );
-
-        $.each(this.actionArray.remove_abuses,
-            function(i,o){
-                $('#'+i).click(
-                    function(){
-                        try{
-                            var form_content = $("#remove-abuse-confirm").children();
-                            $("#commentId").val(o.id);
-
-                            window.remove_abuse_floatbox = new OW_FloatBox({
-                                $title: 'Remove abuse',
-                                $contents: form_content,
-                                icon_class: "ow_ic_delete",
-                                width: 450
-                            });
-                        }catch(err){
-                            alert(err.message);
-                        }
-                    }
-                );
-            }
-        );
-
-        //point out abuse comment
-        var abuseCommentId = window.location.href.split("#")[1];
-        if(abuseCommentId && !$.jStorage.get('abuseCommentFound')){
-            self.findPageForComment(abuseCommentId, 1, this.pages.length - 1);
-        }
-
-        //ISISLab CODE - end report abuse management
-
         for( i = 0; i < this.commentIds.length; i++ )
         {
             if( $('#att'+this.commentIds[i]).length > 0 )
@@ -186,7 +136,10 @@ SpodtchatCommentsList.prototype = {
                                 page:self.page,
                                 initialCount:self.initialCount,
                                 loadMoreCount:self.loadMoreCount,
-                                commentId:self.commentIds[e.data.i]
+                                commentId:self.commentIds[e.data.i],
+                                numberOfNestedLevel: self.numberOfNestedLevel,
+                                commentEntityType: self.commentEntityType,
+                                commentEntityId: self.commentEntityId
                             },
                             dataType: 'json'
                         });
@@ -211,7 +164,10 @@ SpodtchatCommentsList.prototype = {
                 entityId:self.entityId,
                 initialCount:self.initialCount,
                 loadMoreCount:self.loadMoreCount,
-                page:page
+                page:page,
+                numberOfNestedLevel: self.numberOfNestedLevel,
+                commentEntityType: self.commentEntityType,
+                commentEntityId: self.commentEntityId
             },
             dataType: 'json',
             success : function(data){
@@ -227,9 +183,6 @@ SpodtchatCommentsList.prototype = {
                 $("#new_message_" + data.entityId).css('color', 'transparent');
                 $("#new_message_" + data.entityId).removeClass("newMessagesArrived");
                 $("#comment_container_" + data.entityId).removeClass("emphasizedComment");
-
-                window.tchatCommentCmps.refreshCommentsBehavior();
-
             },
             error : function( XMLHttpRequest, textStatus, errorThrown ){
                 OW.error('Ajax Error: '+textStatus+'!');
@@ -254,7 +207,10 @@ SpodtchatCommentsList.prototype = {
                 page: currentPage,
                 initialCount:self.initialCount,
                 loadMoreCount:self.loadMoreCount,
-                commentId:commentId
+                commentId:commentId,
+                numberOfNestedLevel: self.numberOfNestedLevel,
+                commentEntityType: self.commentEntityType,
+                commentEntityId: self.commentEntityId
             },
             dataType: 'json',
             success : function(data){
@@ -270,7 +226,6 @@ SpodtchatCommentsList.prototype = {
                         return;
                     }
                 }else{
-                    $.jStorage.set('abuseCommentFound', true);
                     self.$context.replaceWith(data.commentList);
                     OW.addScript(data.onloadScript);
                     window.location.hash=commentId;
@@ -306,7 +261,10 @@ SPODTCHAT.commentSendMessage = function(message, context)
         initialCount: self.initialCount,
         datalet: ODE.dataletParameters,
         plugin: ODE.pluginPreview,
-        sentiment: (typeof sentiment === 'undefined') ? '' : sentiment
+        sentiment: (typeof sentiment === 'undefined') ? '' : sentiment,
+        numberOfNestedLevel: self.numberOfNestedLevel,
+        commentEntityType: self.commentEntityType,
+        commentEntityId: self.commentEntityId
     };
 
     if( self.attachmentInfo ){
@@ -323,8 +281,8 @@ SPODTCHAT.commentSendMessage = function(message, context)
         data: dataToSend,
         dataType: 'JSON',
         success: function(data){
-            self.repaintCommentsList(data);
-            //OW.trigger('base.photo_attachment_uid_update', {uid:self.attchUid, newUid:data.newAttachUid});
+            //self.repaintCommentsList(data);
+            window.tchatCommentList[self.uid].reload(1);
             OW.trigger('base.file_attachment', {uid:self.attchUid, newUid:data.newAttachUid});
             self.eventParams.commentCount = data.commentCount;
             OW.trigger('base.comment_added', self.eventParams);
@@ -341,9 +299,6 @@ SPODTCHAT.commentSendMessage = function(message, context)
             /* ODE */
 
             $('.ow_file_attachment_preview').html("");
-
-            window.tchatCommentCmps.refreshCommentsBehavior();
-            //setTimeout(function(){new Function(data.onloadScript)();}, 1000);
 
         },
         error: function( XMLHttpRequest, textStatus, errorThrown ){

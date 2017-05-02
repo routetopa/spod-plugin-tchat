@@ -152,7 +152,7 @@ class SPODTCHAT_CTRL_Attachment extends OW_ActionController
             $respondArr = array('result' => false, 'message' => 'General error', 'noData' => true);
         }
 
-        exit("<script>if(parent.window.tchatAttachmentCmps['" . $bundle . "']){parent.window.tchatAttachmentCmps['" . $bundle . "'].updateItems(" . json_encode($respondArr) . ");}</script>");
+        exit("<script>if(parent.window.tchatAttachment['" . $bundle . "']){parent.window.tchatAttachment['" . $bundle . "'].updateItems(" . json_encode($respondArr) . ");}</script>");
     }
 
     public function deleteFile()

@@ -83,6 +83,19 @@ class SPODTCHAT_CTRL_Ajax extends OW_ActionController
                 $_REQUEST['plugin'],
                 $_REQUEST['datalet']['data']);
         }
+
+        //Add comment event trigger for notification system
+        $addCommentEvent = new OW_Event('spodtchat.add_comment', array('comment' => $comment));
+        OW::getEventManager()->trigger($addCommentEvent);
+        $data = array('entityId' => $comment->getCommentEntityId());
+        /*$event = new OW_Event('notification_system.add_notification', array(
+            'type'      => "mail",
+            'plugin' => $params->getPluginKey(),
+            "action"    => $params->getPluginKey() . ".add-comment",
+            'data' => json_encode($data)
+        ));
+        OW::getEventManager()->trigger($event);*/
+
         /* ODE */
         //emit realitme notification
         SPODNOTIFICATION_CLASS_EventHandler::getInstance()->emitNotification(["plugin"      => "tchat",
@@ -106,7 +119,7 @@ class SPODTCHAT_CTRL_Ajax extends OW_ActionController
 
         if ( $isMobile )
         {
-            $commentListCmp = new BASE_MCMP_CommentsList($params, $_POST['cid']);
+            $commentListCmp = new BASE_MCMP_CommentsList($params->getBaseCommentParamsObject(), $_POST['cid']);
         }
         else
         {
@@ -114,7 +127,7 @@ class SPODTCHAT_CTRL_Ajax extends OW_ActionController
 
         }
 
-        exit(json_encode(array(
+         exit(json_encode(array(
                 'newAttachUid' => BOL_CommentService::getInstance()->generateAttachmentUid($params->getEntityType(), $params->getEntityId()),
                 'entityType' => $params->getEntityType(),
                 'entityId' => $params->getEntityId(),
@@ -261,7 +274,7 @@ class SPODTCHAT_CTRL_Ajax extends OW_ActionController
 
     private function getParamsObject()
     {
-        $errorMessage = false;
+         $errorMessage = false;
 
         $entityType = !isset($_POST['entityType']) ? null : trim($_POST['entityType']);
         $entityId = !isset($_POST['entityId']) ? null : (int) $_POST['entityId'];
@@ -272,7 +285,7 @@ class SPODTCHAT_CTRL_Ajax extends OW_ActionController
             $errorMessage = OW::getLanguage()->text('base', 'comment_ajax_error');
         }
 
-        $params = new BASE_CommentsParams($pluginKey, $entityType);
+        $params = new SPODTCHAT_CLASS_CommentsParams($pluginKey, $entityType);
         $params->setEntityId($entityId);
 
         if ( isset($_POST['ownerId']) )
@@ -298,6 +311,21 @@ class SPODTCHAT_CTRL_Ajax extends OW_ActionController
         if ( isset($_POST['loadMoreCount']) )
         {
             $params->setLoadMoreCount((int) $_POST['loadMoreCount']);
+        }
+
+        if ( isset($_POST['numberOfNestedLevel']) )
+        {
+            $params->setNumberOfNestedLevel((int) $_POST['numberOfNestedLevel']);
+        }
+
+        if ( isset($_POST['commentEntityType']) )
+        {
+            $params->setCommentEntityType($_POST['commentEntityType']);
+        }
+
+        if ( isset($_POST['commentEntityId']) )
+        {
+            $params->setCommentEntityId((int) $_POST['commentEntityId']);
         }
 
         if ( $errorMessage )

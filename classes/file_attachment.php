@@ -69,15 +69,12 @@ class SPODTCHAT_CLASS_FileAttachment extends OW_Component
             'multiple' => $this->multiple,
             'lItems' => $itemsArr
         );
-        OW::getDocument()->addOnloadScript("window.tchatAttachmentParams['" . $this->uid . "'] = " . json_encode($params) . ";");
 
-        //OW::getDocument()->addScriptDeclaration("owFileAttachments['" . $this->uid . "'] = new SPODFileAttachment(" . json_encode($params) . ");");
+        OW::getDocument()->addOnloadScript("$('#". $this->uid ."').livequery( function(){
+                                               window.tchatAttachment['". $this->uid ."'] = new SPODFileAttachment('". json_encode($params) ."');
+                                               $('#". $this->uid ."').expire();
+                                           });");
 
-        /*OW::getDocument()->addOnloadScript(
-            "window.addEventListener('DOMNodeInserted', function() {
-                owFileAttachments['" . $this->uid . "'] = new SPODFileAttachment(" . json_encode($params) . ");
-            }, false);"
-        );*/
 
         $this->assign('data', array('uid' => $this->uid, 'showPreview' => $this->showPreview, 'selector' => $this->inputSelector));
         $this->assign('static_attach_image_url', OW_ThemeManager::getInstance()->getThemeImagesUrl());
